@@ -2,6 +2,13 @@ const app = require("./app");
 require("colors");
 
 /* Error Handling */
+app.get("/", (req, res) => {
+    res.send({success: true , message: "Welcome to CHAT API..."});
+});
+
+app.get("*", (req, res) => {
+    res.status(404).json({ msg: "Page Not Found" });
+});
 
 /* 404 route */
 app.use((err, req, res, next) => {
