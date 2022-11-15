@@ -2,6 +2,7 @@ const Users = require("../models/userModel");
 const {
   registerUserService,
   findUserByEmailService,
+  findAllUsersService,
 } = require("../services/userServices");
 const GenerateToken = require("../Utils/GenerateToken");
 
@@ -78,10 +79,12 @@ const loginUser = async (req, res) => {
 
 /* get all the users */
 const getAllUsers = async (req, res) => {
-  try {
+  try {   
+    const users = await findAllUsersService();
     res.json({
       success: true,
       message: "All users",
+      users,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

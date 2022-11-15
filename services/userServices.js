@@ -19,3 +19,9 @@ exports.findUserByIdService = async (id) => {
   const result = await Users.findById(id);
   return result;
 };
+
+/* find all the users service */
+exports.findAllUsersService = async()=>{
+    const result = await Users.find({}).select("-password -__v");
+    return result;
+}

@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const AuthGuard = require("./../middlewares/AuthGuard")
 
 // import controllers
 const userController = require("../controllers/userController");
@@ -17,7 +18,7 @@ router.post("/login", userController.loginUser)
 
 // @route   GET api/users
 // @desc    Get all users
-// @access  Public
-router.get("/all", userController.getAllUsers);
+// @access  secure
+router.get("/all", AuthGuard,  userController.getAllUsers);
 
 module.exports = router;
