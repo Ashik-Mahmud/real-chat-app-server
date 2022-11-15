@@ -9,6 +9,11 @@ const userController = require("../controllers/userController");
 //@access Public
 router.post("/register", userController.registerUser);
 
+// @route POST api/user/login
+// @desc Login user
+// @access Public
+router.post("/login", userController.loginUser)
+
 
 // @route   GET api/users
 // @desc    Get all users
