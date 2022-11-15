@@ -14,14 +14,23 @@ app.use(express.urlencoded({ extended: true }));
 
 /* imports routes */
 const userRouter = require('./routes/userRoutes');
+const chatRouter = require("./routes/chatRoutes")
 const ConnectedDB = require('./Utils/DatabaseConnection');
+
 
 /* connection */
 ConnectedDB();
 
 
 /* apply routes */
+
+/* user route */
 app.use('/api/user', userRouter);
+
+/* chat route */
+app.use("/api/chat", chatRouter)
+
+
 
 
 
