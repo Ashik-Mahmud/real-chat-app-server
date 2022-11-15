@@ -3,6 +3,11 @@ const Schema = mongoose.Schema;
 
 const messageSchema = new Schema(
   {
+    chat: {
+      type: Schema.Types.ObjectId,
+      ref: "Chat",
+      required: true,
+    },
     sender: {
       type: Schema.Types.ObjectId,
       ref: "Users",
@@ -16,6 +21,11 @@ const messageSchema = new Schema(
     message: {
       type: String,
       required: true,
+    },
+    lastMessage: {
+      type: String,
+      required: true,
+      trim: true,
     },
     isRead: {
       type: Boolean,

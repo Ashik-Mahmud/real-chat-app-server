@@ -3,24 +3,35 @@ const Schema = mongoose.Schema;
 
 const chatSchema = new Schema(
   {
-    sender: {
+    creator: {
       type: Schema.Types.ObjectId,
       ref: "Users",
       required: true,
     },
-    receiver: {
-      type: Schema.Types.ObjectId,
-      ref: "Users",
-      required: true,
-    },
-    message: {
+    groupName: {
       type: String,
-      required: true,
+      trim: true,
     },
-    isRead: {
+    groupImage: {
+      type: String,
+      default:
+        "https://www.vippng.com/png/full/416-4161690_empty-profile-picture-blank-avatar-image-circle.png",
+    },
+    isGroup: {
       type: Boolean,
       default: false,
     },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
+    users: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Users",
+        required: true,
+      },
+    ],
   },
   {
     timestamps: true,
