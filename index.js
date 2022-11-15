@@ -3,11 +3,11 @@ require("colors");
 
 /* Error Handling */
 app.get("/", (req, res) => {
-    res.send({success: true , message: "Welcome to CHAT API..."});
+  res.send({ success: true, message: "Welcome to CHAT API..." });
 });
 
 app.get("*", (req, res) => {
-    res.status(404).json({ msg: "Page Not Found" });
+  res.status(404).json({ msg: "Page Not Found" });
 });
 
 /* 404 route */
@@ -22,10 +22,17 @@ app.use((err, req, res, next) => {
 /* 500 route */
 app.use((req, res, next) => {
   const error = new Error("Not Found");
+
+  if (res.headersSent) {
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
   res.json({
     success: false,
     message: "Internal Server Error",
-  })
+  });
   error.status = 404;
   next(error);
 });

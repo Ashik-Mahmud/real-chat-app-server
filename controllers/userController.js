@@ -46,12 +46,24 @@ const loginUser = async (req, res) => {
       });
     }
 
-    const isMatchPassword = await isHasUser.comparePassword(data?.password, isHasUser?.password);
-    console.log(isMatchPassword);
+    const isMatchPassword = await isHasUser.comparePassword(
+      data?.password,
+      isHasUser?.password
+    );
 
+    if (!isMatchPassword) {
+      return res.status(404).send({
+        success: false,
+        message: "Incorrect credentials",
+      });
+    }
+
+    const token = await GenerateToken(isHasUser);
     res.status(202).send({
       success: true,
       message: "User logged in",
+      user: isHasUser,
+      token,
     });
   } catch (error) {
     res.status(404).send({
