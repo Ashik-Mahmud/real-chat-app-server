@@ -21,7 +21,7 @@ ConnectedDB();
 
 
 /* apply routes */
-app.use('/api', userRouter);
+app.use('/api/user', userRouter);
 
 
 

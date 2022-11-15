@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
@@ -17,8 +18,9 @@ const userSchema = new Schema(
       required: true,
     },
     avatar: {
-        type: String,
-        default: "https://www.vippng.com/png/full/416-4161690_empty-profile-picture-blank-avatar-image-circle.png"
+      type: String,
+      default:
+        "https://www.vippng.com/png/full/416-4161690_empty-profile-picture-blank-avatar-image-circle.png",
     },
     isVerified: {
       type: Boolean,
@@ -42,5 +44,17 @@ const userSchema = new Schema(
   }
 );
 
+/* hashing password */
+userSchema.pre("save", async function (next) {
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(this.password, salt);
+    this.password = passwordHash;
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 const Users = mongoose.model("Users", userSchema);
+
 module.exports = Users;
