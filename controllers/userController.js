@@ -3,6 +3,7 @@ const {
   registerUserService,
   findUserByEmailService,
   findAllUsersService,
+  findUserByIdService,
 } = require("../services/userServices");
 const GenerateToken = require("../Utils/GenerateToken");
 
@@ -62,7 +63,7 @@ const loginUser = async (req, res) => {
     }
 
     const token = await GenerateToken(isHasUser);
-    const {password,__v, ...others} = isHasUser.toObject();
+    const { password, __v, ...others } = isHasUser.toObject();
     res.status(202).send({
       success: true,
       message: "User logged in",
@@ -77,9 +78,32 @@ const loginUser = async (req, res) => {
   }
 };
 
+/* Get user by ID */
+const getUserById = async (req, res) => {
+  try {
+    const user = await findUserByIdService(req.user?.id);
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: `User not found by this Id`,
+      });
+    }
+    res.status(202).send({
+        success: true,
+        message: "found",
+        user,
+    })
+  } catch (err) {
+    res.status(404).send({
+      success: false,
+      message: `Error occurred to single user by id` + err.message,
+    });
+  }
+};
+
 /* get all the users */
 const getAllUsers = async (req, res) => {
-  try {   
+  try {
     const users = await findAllUsersService();
     res.json({
       success: true,
@@ -92,4 +116,4 @@ const getAllUsers = async (req, res) => {
 };
 
 /* imports controller */
-module.exports = { getAllUsers, registerUser, loginUser };
+module.exports = { getAllUsers, registerUser, loginUser, getUserById };

@@ -12,11 +12,11 @@ exports.registerUserService = async (data) => {
 
 /* find single user service */
 exports.findUserByEmailService = async (email) => {
-  const result = await Users.findOne({ email });
+  const result = await Users.findOne({ email }).select("-password -__v");
   return result;
 };
 exports.findUserByIdService = async (id) => {
-  const result = await Users.findById(id);
+  const result = await Users.findById(id).select("-password -__v");;
   return result;
 };
 

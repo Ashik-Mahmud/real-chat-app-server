@@ -15,10 +15,15 @@ router.post("/register", userController.registerUser);
 // @access Public
 router.post("/login", userController.loginUser)
 
-
 // @route   GET api/users
 // @desc    Get all users
 // @access  secure
 router.get("/all", AuthGuard,  userController.getAllUsers);
+
+// @route GET api/user/:id
+// @desc Get Single User By ID
+// @access secure
+router.get("/:id", AuthGuard, userController.getUserById)
+
 
 module.exports = router;
