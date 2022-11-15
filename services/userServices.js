@@ -9,3 +9,13 @@ exports.registerUserService = async (data) => {
     throw new Error(err.message);
   }
 };
+
+/* find single user service */
+exports.findUserByEmailService = async (email) => {
+  const result = await Users.findOne({ email });
+  return result;
+};
+exports.findUserByIdService = async (id) => {
+  const result = await Users.findById(id);
+  return result;
+};

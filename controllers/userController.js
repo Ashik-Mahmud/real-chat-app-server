@@ -1,5 +1,8 @@
 const Users = require("../models/userModel");
-const { registerUserService } = require("../services/userServices");
+const {
+  registerUserService,
+  findUserByEmailService,
+} = require("../services/userServices");
 const GenerateToken = require("../Utils/GenerateToken");
 
 /* register users */
@@ -10,7 +13,7 @@ const registerUser = async (req, res) => {
   }
   try {
     /* check user is exist or not */
-    const isExist = await Users.findOne({ email: data.email });
+    const isExist = await findUserByEmailService(data?.email);
     if (isExist) {
       return res.status(400).json({ message: "User already exist" });
     }
@@ -37,8 +40,7 @@ const loginUser = async (req, res) => {
   }
 
   try {
-    const isHasUser = await Users.findOne({ email: data?.email });
-
+    const isHasUser = await findUserByEmailService(data?.email);
     if (!isHasUser) {
       return res.status(403).send({
         success: false,
@@ -59,10 +61,11 @@ const loginUser = async (req, res) => {
     }
 
     const token = await GenerateToken(isHasUser);
+    const {password,__v, ...others} = isHasUser.toObject();
     res.status(202).send({
       success: true,
       message: "User logged in",
-      user: isHasUser,
+      user: others,
       token,
     });
   } catch (error) {
