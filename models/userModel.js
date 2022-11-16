@@ -29,13 +29,13 @@ const userSchema = new Schema(
     friends: [
       {
         type: Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Users",
       },
     ],
     blockedBy: [
       {
         type: Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Users",
       },
     ],
 

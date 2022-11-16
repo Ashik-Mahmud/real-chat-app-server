@@ -6,11 +6,11 @@ const {
   findUserByIdService,
 } = require("../services/userServices");
 const GenerateToken = require("../Utils/GenerateToken");
- 
+
 /* register users */
 const registerUser = async (req, res) => {
   const data = req.body;
-   
+
   if (!data.name || !data.email || !data.password) {
     return res.status(400).json({ message: "Please enter all fields" });
   }
@@ -74,7 +74,8 @@ const loginUser = async (req, res) => {
     );
 
     const token = await GenerateToken(isHasUser);
-    const { password, __v, blockedBy, friends, ...others } = isHasUser.toObject();
+    const { password, __v, blockedBy, friends, ...others } =
+      isHasUser.toObject();
     res.status(202).send({
       success: true,
       message: "User logged in",
@@ -91,11 +92,11 @@ const loginUser = async (req, res) => {
 
 /* logout users */
 const logoutUser = async (req, res) => {
-  const user = req.user;
+  const { id } = req.params;
   try {
     /* made it offline */
     await Users.findByIdAndUpdate(
-      user.id,
+      id,
       {
         $set: {
           isOnline: false,
@@ -191,7 +192,6 @@ const blockUser = async (req, res) => {
 
 /* Get user by ID */
 const getUserById = async (req, res) => {
-    
   try {
     const user = await findUserByIdService(req.user?.id);
     if (!user) {
@@ -216,15 +216,37 @@ const getUserById = async (req, res) => {
 /* get all the users */
 const getAllUsers = async (req, res) => {
   const { q } = req.query;
+
   try {
     let filter = {};
 
     if (q) {
-      filter.name = new RegExp(q, "i");
-      filter.email = new RegExp(q, "i");
+      filter.$or = [
+        { name: new RegExp(q, "i") },
+        { email: new RegExp(q, "i") },
+      ];
     }
-
-    const users = await findAllUsersService(filter);
+    const mineInfo = await Users.findById(req.user?.id);
+    
+    /* if someone already add to my friends i don't show them  */
+    filter.$and = [
+      {
+        _id: {
+          $nin: mineInfo?.friends,
+        },
+      },
+      {
+        _id: {
+          $nin: mineInfo?.blockedBy,
+        },
+      },
+      {
+        _id: {
+          $ne: mineInfo?._id,
+        },
+      },
+    ];
+    const users = await Users.find(filter).select("-password -__v");
     res.json({
       success: true,
       message: "All users",

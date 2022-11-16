@@ -16,7 +16,7 @@ exports.findUserByEmailService = async (email) => {
   return result;
 };
 exports.findUserByIdService = async (id) => {
-  const result = await Users.findById(id).select("-password -__v");;
+  const result = await Users.findById(id).select("-password -__v").populate("friends", "-password -__v");
   return result;
 };
 

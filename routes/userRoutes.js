@@ -18,7 +18,7 @@ router.post("/login", userController.loginUser)
 // @route GET api/user/logout
 // @desc Logout user
 // @access Public
-router.get("/logout", AuthGuard, userController.logoutUser)
+router.get("/logout/:id",  userController.logoutUser)
 
 // @route   GET api/users
 // @desc    Get all users

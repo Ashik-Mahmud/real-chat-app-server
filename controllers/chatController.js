@@ -7,13 +7,13 @@ const createChat = async (req, res) => {
   const user = req.user;
 
   const { receiverId } = req.body;
+  
   if (!receiverId) {
     return res.status(401).send({
       success: false,
       message: "Please fill up all the fields",
     });
   }
-
   try {
     const chat = await Chat.findOne({
       users: {
