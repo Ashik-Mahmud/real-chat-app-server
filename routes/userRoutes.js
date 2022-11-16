@@ -31,4 +31,7 @@ router.get("/all", AuthGuard,  userController.getAllUsers);
 router.get("/:id", AuthGuard, userController.getUserById)
 
 
+
+
+
 module.exports = router;
