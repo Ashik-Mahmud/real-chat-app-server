@@ -191,6 +191,7 @@ const blockUser = async (req, res) => {
 
 /* Get user by ID */
 const getUserById = async (req, res) => {
+    
   try {
     const user = await findUserByIdService(req.user?.id);
     if (!user) {

@@ -33,7 +33,7 @@ router.get("/block/:userId", AuthGuard, userController.blockUser);
 // @route GET api/user/:id
 // @desc Get Single User By ID
 // @access secure
-router.get("/:id", AuthGuard, userController.getUserById)
+router.get("/me", AuthGuard, userController.getUserById)
 
 
 
