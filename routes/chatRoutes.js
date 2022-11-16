@@ -17,6 +17,11 @@ router.post("/create", AuthGuard, chatController.createChat)
 // @access secure
 router.post("/message", AuthGuard, chatController.sendMessage)
 
+// @route DELETE /api/chat/message/remove/:id
+// @desc Delete Message by user
+// @access secure
+router.delete("/message/remove/:messageId", AuthGuard, chatController.deleteMessage)
+
 // @route GET /api/chat/user
 // @desc Get all chats of a user
 // @access secure

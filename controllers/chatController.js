@@ -21,11 +21,12 @@ const createChat = async (req, res) => {
       },
     });
     if (chat) {
-      return res.status(200).send({
+      res.status(200).send({
         success: true,
         message: "Chat already exists",
         chatId: chat._id,
       });
+      return;
     }
 
     /* send receiver Id as friend */
@@ -66,19 +67,12 @@ const createChat = async (req, res) => {
     });
     console.log(err);
   }
-
-  res.status(202).send({
-    success: true,
-    message: `Create chat route`,
-    user,
-  });
 };
 
 /* remove Chat */
 const removeChat = async (req, res) => {
   const user = req.user;
   const { chatId } = req.params;
-
 
   if (!chatId) {
     return res.status(401).send({
@@ -212,6 +206,44 @@ const sendMessage = async (req, res) => {
   }
 };
 
+/* remove message by user */
+const deleteMessage = async (req, res) => {
+  const user = req.user;
+  const { messageId } = req.params;
+  if (!messageId) {
+    return res.status(401).send({
+      success: false,
+      message: "Please fill up all the fields",
+    });
+  }
+  try {
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.status(404).send({
+        success: false,
+        message: "Message not found",
+      });
+    }
+    if (message.sender != user.id) {
+      return res.status(401).send({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+    await message.remove();
+    res.status(200).send({
+      success: true,
+      message: "Message removed successfully",
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+    console.log(err);
+  }
+};
+
 /* get all the messages for particular chat id */
 const getMessages = async (req, res) => {
   const user = req.user;
@@ -272,5 +304,5 @@ module.exports = {
   removeChat,
   sendMessage,
   getMessages,
-  getAllChatsOfUser,
+  getAllChatsOfUser,deleteMessage
 };
