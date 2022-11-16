@@ -25,6 +25,11 @@ router.get("/logout", AuthGuard, userController.logoutUser)
 // @access  secure
 router.get("/all", AuthGuard,  userController.getAllUsers);
 
+// @route GET api/user/block/:id
+// @desc Block user
+// @access secure
+router.get("/block/:userId", AuthGuard, userController.blockUser);
+
 // @route GET api/user/:id
 // @desc Get Single User By ID
 // @access secure

@@ -116,6 +116,78 @@ const logoutUser = async (req, res) => {
   }
 };
 
+/* block user */
+const blockUser = async (req, res) => {
+  const user = req.user;
+  const { userId } = req.params;
+  if (!userId) {
+    return res.status(401).send({
+      success: false,
+      message: "Please fill up all the fields",
+    });
+  }
+  try {
+    const { block } = req.query;
+
+    if (JSON.parse(block)) {
+      /* send receiver Id as friend */
+      await Users.findByIdAndUpdate(
+        userId,
+        {
+          $push: {
+            blockedBy: user.id,
+          },
+        },
+        { new: true }
+      );
+      /* send sender id as friend */
+      await Users.findByIdAndUpdate(
+        user.id,
+        {
+          $push: {
+            blockedBy: userId,
+          },
+        },
+        { new: true }
+      );
+      res.status(200).send({
+        success: true,
+        message: "User blocked",
+      });
+    } else {
+      /* send receiver Id as friend */
+      await Users.findByIdAndUpdate(
+        userId,
+        {
+          $pull: {
+            blockedBy: user.id,
+          },
+        },
+        { new: true }
+      );
+      /* send sender id as friend */
+      await Users.findByIdAndUpdate(
+        user.id,
+        {
+          $pull: {
+            blockedBy: userId,
+          },
+        },
+        { new: true }
+      );
+      res.status(200).send({
+        success: true,
+        message: "User Unblocked",
+      });
+    }
+  } catch (error) {
+    res.status(404).send({
+      success: false,
+      message: `Server Error` + error?.message,
+    });
+  }
+};
+
 /* Get user by ID */
 const getUserById = async (req, res) => {
   try {
@@ -168,4 +240,5 @@ module.exports = {
   loginUser,
   getUserById,
   logoutUser,
+  blockUser,
 };
