@@ -69,6 +69,47 @@ const createChat = async (req, res) => {
   }
 };
 
+/* create group chat */
+const createGroupChat = async (req, res) => {
+  const user = req.user;
+  const { name, members } = req.body;
+  if (!name || !members) {
+    return res.status(401).send({
+      success: false,
+      message: "Please fill up all the fields",
+    });
+  }
+
+  /* check if members is less then 2 */
+  if (members.length < 2) {
+    return res.status(401).send({
+      success: false,
+      message: "Please add atleast 2 members",
+    });
+  }
+
+  try {
+    const newChat = new Chat({
+      creator: user.id,
+      groupName: name,
+      isGroup: true,
+      users: [...members, user.id],
+    });
+    const savedChat = await newChat.save();
+    res.status(200).send({
+      success: true,
+      message: "Group chat created successfully",
+      chatId: savedChat._id,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+    console.log(err);
+  }
+};
+
 /* remove Chat */
 const removeChat = async (req, res) => {
   const user = req.user;
@@ -301,8 +342,10 @@ const getMessages = async (req, res) => {
 //import
 module.exports = {
   createChat,
+  createGroupChat,
   removeChat,
   sendMessage,
   getMessages,
-  getAllChatsOfUser,deleteMessage
+  getAllChatsOfUser,
+  deleteMessage,
 };

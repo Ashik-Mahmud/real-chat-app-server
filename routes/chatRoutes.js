@@ -12,6 +12,11 @@ const chatController = require("./../controllers/chatController")
 // @access secure
 router.post("/create", AuthGuard, chatController.createChat)
 
+// @route POST /api/chat/group/create
+// @desc Create chat for group
+// @access secure
+router.post("/group/create", AuthGuard, chatController.createGroupChat)
+
 // @route POST /api/chat/message
 // @desc Send Message to a chat
 // @access secure
