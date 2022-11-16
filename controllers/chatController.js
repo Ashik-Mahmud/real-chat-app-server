@@ -95,11 +95,54 @@ const sendMessage = async (req, res) => {
   } catch (err) {
     res.status(500).send({
       success: false,
-      message: "Server Error"+err,
+      message: "Server Error" + err,
+    });
+    console.log(err);
+  }
+};
+
+/* get all the messages for particular chat id */
+const getMessages = async (req, res) => {
+  const user = req.user;
+  const { chatId } = req.params;
+  if (!chatId) {
+    return res.status(401).send({
+      success: false,
+      message: "Please fill up all the fields",
+    });
+  }
+
+  try {
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(404).send({
+        success: false,
+        message: "Chat not found",
+      });
+    }
+    if (!chat.users.includes(user.id)) {
+      return res.status(401).send({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const messages = await Message.find({ chat: chatId }).populate(
+      "sender",
+      "name email"
+    ).populate("receiver", "name email");
+    res.status(200).send({
+      success: true,
+      messages,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
     });
     console.log(err);
   }
 };
 
 //import
-module.exports = { createChat, sendMessage };
+module.exports = { createChat, sendMessage, getMessages };
