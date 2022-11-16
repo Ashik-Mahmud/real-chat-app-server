@@ -141,8 +141,16 @@ const getUserById = async (req, res) => {
 
 /* get all the users */
 const getAllUsers = async (req, res) => {
+  const { q } = req.query;
   try {
-    const users = await findAllUsersService();
+    let filter = {};
+
+    if (q) {
+      filter.name = new RegExp(q, "i");
+      filter.email = new RegExp(q, "i");
+    }
+
+    const users = await findAllUsersService(filter);
     res.json({
       success: true,
       message: "All users",
