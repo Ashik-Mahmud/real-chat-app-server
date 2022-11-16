@@ -22,13 +22,6 @@ app.use((err, req, res, next) => {
 /* 500 route */
 app.use((req, res, next) => {
   const error = new Error("Not Found");
-
-  if (res.headersSent) {
-    return res.json({
-      success: false,
-      message: "Internal Server Error",
-    });
-  }
   res.json({
     success: false,
     message: "Internal Server Error",

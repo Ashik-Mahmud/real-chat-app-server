@@ -74,6 +74,48 @@ const createChat = async (req, res) => {
   });
 };
 
+/* remove Chat */
+const removeChat = async (req, res) => {
+  const user = req.user;
+  const { chatId } = req.params;
+
+
+  if (!chatId) {
+    return res.status(401).send({
+      success: false,
+      message: "Please fill up all the fields",
+    });
+  }
+  try {
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(404).send({
+        success: false,
+        message: "Chat not found",
+      });
+    }
+    if (chat.users.includes(user.id)) {
+      await Message.deleteMany({ chat: chatId });
+      await chat.remove();
+      return res.status(200).send({
+        success: true,
+        message: "Chat removed successfully",
+      });
+    }
+
+    res.status(401).send({
+      success: false,
+      message: "Unauthorized",
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+    console.log(err);
+  }
+};
+
 /* get all chats by user */
 const getAllChatsOfUser = async (req, res) => {
   const user = req.user;
@@ -225,4 +267,10 @@ const getMessages = async (req, res) => {
 };
 
 //import
-module.exports = { createChat, sendMessage, getMessages, getAllChatsOfUser };
+module.exports = {
+  createChat,
+  removeChat,
+  sendMessage,
+  getMessages,
+  getAllChatsOfUser,
+};
