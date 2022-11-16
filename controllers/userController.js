@@ -6,10 +6,11 @@ const {
   findUserByIdService,
 } = require("../services/userServices");
 const GenerateToken = require("../Utils/GenerateToken");
-
+ 
 /* register users */
 const registerUser = async (req, res) => {
   const data = req.body;
+   
   if (!data.name || !data.email || !data.password) {
     return res.status(400).json({ message: "Please enter all fields" });
   }
