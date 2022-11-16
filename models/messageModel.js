@@ -22,11 +22,6 @@ const messageSchema = new Schema(
       type: String,
       required: true,
     },
-    lastMessage: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     isRead: {
       type: Boolean,
       default: false,

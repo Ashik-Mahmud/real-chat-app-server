@@ -31,7 +31,12 @@ const chatSchema = new Schema(
         required: true,
       },
     ],
+    lastMessage: {
+      type: String,
+      trim: true,
+    },
   },
+
   {
     timestamps: true,
   }
