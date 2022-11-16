@@ -42,13 +42,13 @@ const loginUser = async (req, res) => {
   }
 
   try {
-    const isHasUser = await findUserByEmailService(data?.email);
+    const isHasUser = await Users.findOne({email: data?.email});
     if (!isHasUser) {
       return res.status(403).send({
         success: false,
         message: `${data?.email} is not register yet.`,
       });
-    }
+    }   
 
     const isMatchPassword = await isHasUser.comparePassword(
       data?.password,

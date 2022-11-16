@@ -6,7 +6,6 @@ const chatSchema = new Schema(
     creator: {
       type: Schema.Types.ObjectId,
       ref: "Users",
-      required: true,
     },
     groupName: {
       type: String,

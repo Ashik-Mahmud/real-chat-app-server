@@ -1,6 +1,6 @@
 const router  = require("express").Router();
 
-
+const AuthGuard = require("./../middlewares/AuthGuard")
 // import controllers
 const chatController = require("./../controllers/chatController")
 
@@ -10,7 +10,7 @@ const chatController = require("./../controllers/chatController")
 // @route POST /api/chat/create
 // @desc Create chat for one-to-one
 // @access secure
-router.get("/create", chatController.createChat)
+router.post("/create", AuthGuard, chatController.createChat)
 
 
 //import
