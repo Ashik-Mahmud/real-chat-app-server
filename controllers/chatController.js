@@ -91,10 +91,27 @@ const getAllChatsOfUser = async (req, res) => {
           select: "-password -__v",
         },
       });
+
+    /* get only receiver users */
+    let chatsWithReceiver = chats.map((c) => {
+      const receiver = c.users.find((u) => u._id != user.id);
+      return receiver;
+    });
+
+    /* search receivers by name and email */
+    const { search } = req.query;
+    if (search) {
+      chatsWithReceiver = chatsWithReceiver.filter((c) => {
+        const regex = new RegExp(search, "gi");
+        return c.name.match(regex) || c.email.match(regex);
+      });
+    }
+
     res.status(200).send({
       success: true,
-      message: "Chats fetched successfully",
+      message: "Chats fetched successfully outside if",
       chats,
+      receivers: chatsWithReceiver,
     });
   } catch (err) {
     res.status(500).send({
