@@ -127,10 +127,21 @@ const getMessages = async (req, res) => {
       });
     }
 
-    const messages = await Message.find({ chat: chatId }).populate(
-      "sender",
-      "name email"
-    ).populate("receiver", "name email");
+    const messages = await Message.find({ chat: chatId })
+      .populate("sender", "name email")
+      .populate("receiver", "name email");
+
+    /* code for isRead or not */
+    const unreadMessages = messages.filter(
+      (m) => m.receiver._id == user.id && !m.isRead
+    );
+    if (unreadMessages.length > 0) {
+      unreadMessages.forEach(async (m) => {
+        m.isRead = true;
+        await m.save();
+      });
+    }
+
     res.status(200).send({
       success: true,
       messages,
