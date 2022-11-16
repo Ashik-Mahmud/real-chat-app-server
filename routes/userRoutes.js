@@ -15,6 +15,11 @@ router.post("/register", userController.registerUser);
 // @access Public
 router.post("/login", userController.loginUser)
 
+// @route GET api/user/logout
+// @desc Logout user
+// @access Public
+router.get("/logout", AuthGuard, userController.logoutUser)
+
 // @route   GET api/users
 // @desc    Get all users
 // @access  secure

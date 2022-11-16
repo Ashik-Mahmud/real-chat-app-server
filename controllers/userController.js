@@ -40,15 +40,14 @@ const loginUser = async (req, res) => {
       message: "Please fill up all the fields",
     });
   }
-
   try {
-    const isHasUser = await Users.findOne({email: data?.email});
+    const isHasUser = await Users.findOne({ email: data?.email });
     if (!isHasUser) {
       return res.status(403).send({
         success: false,
         message: `${data?.email} is not register yet.`,
       });
-    }   
+    }
 
     const isMatchPassword = await isHasUser.comparePassword(
       data?.password,
@@ -62,6 +61,17 @@ const loginUser = async (req, res) => {
       });
     }
 
+    /* made it online */
+    await Users.findByIdAndUpdate(
+      isHasUser?._id,
+      {
+        $set: {
+          isOnline: true,
+        },
+      },
+      { new: true }
+    );
+
     const token = await GenerateToken(isHasUser);
     const { password, __v, ...others } = isHasUser.toObject();
     res.status(202).send({
@@ -69,6 +79,34 @@ const loginUser = async (req, res) => {
       message: "User logged in",
       user: others,
       token,
+    });
+  } catch (error) {
+    res.status(404).send({
+      success: false,
+      message: `Server Error` + error?.message,
+    });
+  }
+};
+
+/* logout users */
+const logoutUser = async (req, res) => {
+  const user = req.user;
+  try {
+    /* made it offline */
+    await Users.findByIdAndUpdate(
+      user.id,
+      {
+        $set: {
+          isOnline: false,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+    res.status(200).send({
+      success: true,
+      message: "User logged out",
     });
   } catch (error) {
     res.status(404).send({
@@ -89,10 +127,10 @@ const getUserById = async (req, res) => {
       });
     }
     res.status(202).send({
-        success: true,
-        message: "found",
-        user,
-    })
+      success: true,
+      message: "found",
+      user,
+    });
   } catch (err) {
     res.status(404).send({
       success: false,
@@ -116,4 +154,10 @@ const getAllUsers = async (req, res) => {
 };
 
 /* imports controller */
-module.exports = { getAllUsers, registerUser, loginUser, getUserById };
+module.exports = {
+  getAllUsers,
+  registerUser,
+  loginUser,
+  getUserById,
+  logoutUser,
+};

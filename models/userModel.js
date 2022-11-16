@@ -38,6 +38,11 @@ const userSchema = new Schema(
         ref: "User",
       },
     ],
+
+    isOnline: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

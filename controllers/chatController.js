@@ -1,5 +1,6 @@
 const Chat = require("../models/chatModel");
 const Message = require("../models/messageModel");
+const Users = require("../models/userModel");
 
 /* create chat */
 const createChat = async (req, res) => {
@@ -26,6 +27,27 @@ const createChat = async (req, res) => {
         chatId: chat._id,
       });
     }
+
+    /* send receiver Id as friend */
+    await Users.findByIdAndUpdate(
+      receiverId,
+      {
+        $push: {
+          friends: user.id,
+        },
+      },
+      { new: true }
+    );
+    /* send sender id as friend */
+    await Users.findByIdAndUpdate(
+      user.id,
+      {
+        $push: {
+          friends: receiverId,
+        },
+      },
+      { new: true }
+    );
 
     const newChat = new Chat({
       users: [user.id, receiverId],
