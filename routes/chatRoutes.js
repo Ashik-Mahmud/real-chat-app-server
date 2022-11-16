@@ -17,10 +17,17 @@ router.post("/create", AuthGuard, chatController.createChat)
 // @access secure
 router.post("/message", AuthGuard, chatController.sendMessage)
 
+// @route GET /api/chat/user
+// @desc Get all chats of a user
+// @access secure
+router.get("/user", AuthGuard, chatController.getAllChatsOfUser)
+
 // @route GET /api/chat/:id
 // @desc Get all messages of a chat
 // @access secure
-router.get("/:chatId", AuthGuard, chatController.getMessages)
+router.get("/:chatId", AuthGuard, chatController.getMessages);
+
+
 
 
 //import

@@ -74,6 +74,36 @@ const createChat = async (req, res) => {
   });
 };
 
+/* get all chats by user */
+const getAllChatsOfUser = async (req, res) => {
+  const user = req.user;
+  try {
+    const chats = await Chat.find({
+      users: {
+        $in: [user.id],
+      },
+    })
+      .populate("users", "-password -__v")
+      .populate({
+        path: "lastMessage",
+        populate: {
+          path: "sender",
+          select: "-password -__v",
+        },
+      });
+    res.status(200).send({
+      success: true,
+      message: "Chats fetched successfully",
+      chats,
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
+
 /* send message to the chat */
 const sendMessage = async (req, res) => {
   const user = req.user;
@@ -178,4 +208,4 @@ const getMessages = async (req, res) => {
 };
 
 //import
-module.exports = { createChat, sendMessage, getMessages };
+module.exports = { createChat, sendMessage, getMessages, getAllChatsOfUser };
