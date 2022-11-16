@@ -74,7 +74,7 @@ const loginUser = async (req, res) => {
     );
 
     const token = await GenerateToken(isHasUser);
-    const { password, __v, ...others } = isHasUser.toObject();
+    const { password, __v, blockedBy, friends, ...others } = isHasUser.toObject();
     res.status(202).send({
       success: true,
       message: "User logged in",
