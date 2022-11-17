@@ -131,6 +131,30 @@ const removeChat = async (req, res) => {
         message: "Chat not found",
       });
     }
+
+    const receiverId = chat?.receiver.toString();
+
+    /* remove receiver as friend */
+    await Users.findByIdAndUpdate(
+      receiverId,
+      {
+        $pull: {
+          friends: user.id,
+        },
+      },
+      { new: true }
+    );
+    /* remove sender as friend */
+    await Users.findByIdAndUpdate(
+      user.id,
+      {
+        $pull: {
+          friends: receiverId,
+        },
+      },
+      { new: true }
+    );
+
     if (chat.users.includes(user.id)) {
       await Message.deleteMany({ chat: chatId });
       await chat.remove();
@@ -167,15 +191,12 @@ const getAllChatsOfUser = async (req, res) => {
         path: "lastMessage",
         populate: {
           path: "sender",
-          select: "-password -__v",
+          select: "-password -__v -blockedBy -friends",
         },
       })
       .populate("receiver", "-password -__v");
 
-      const {search} = req.query;
-
-      console.log(search);
-      
+    const { search } = req.query;
 
     chats.map((chat) => {
       const receiver = chat.users.filter((user) => user._id != req.user.id)[0];
@@ -183,7 +204,9 @@ const getAllChatsOfUser = async (req, res) => {
     });
 
     /* search by name */
-    const searchedResult = chats.filter(chat => chat.receiver?.name?.toLowerCase()?.includes(search.toLowerCase()))
+    const searchedResult = chats.filter((chat) =>
+      chat.receiver?.name?.toLowerCase()?.includes(search?.toLowerCase())
+    );
     res.status(200).send({
       success: true,
       message: "Chats fetched successfully outside if",
@@ -192,7 +215,7 @@ const getAllChatsOfUser = async (req, res) => {
   } catch (err) {
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: "Server Error" + err,
     });
   }
 };
@@ -223,7 +246,7 @@ const sendMessage = async (req, res) => {
       });
     }
 
-    chat.lastMessage = message;
+    chat.lastMessage.msg = message;
     const newMessage = {
       chat: chatId,
       sender: user.id,
@@ -231,6 +254,8 @@ const sendMessage = async (req, res) => {
       message: message,
     };
     const saveMessage = await Message.create(newMessage);
+    chat.lastMessage.sender = saveMessage?.sender;
+
     await chat.save();
     res.status(200).send({
       success: true,
@@ -311,7 +336,7 @@ const getMessages = async (req, res) => {
     }
 
     const messages = await Message.find({ chat: chatId })
-      .populate("sender", "name email")
+      .populate("sender", "name email avatar")
       .populate("receiver", "name email");
 
     /* code for isRead or not */

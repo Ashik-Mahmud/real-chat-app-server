@@ -122,6 +122,8 @@ const logoutUser = async (req, res) => {
 const blockUser = async (req, res) => {
   const user = req.user;
   const { userId } = req.params;
+
+  
   if (!userId) {
     return res.status(401).send({
       success: false,
@@ -132,16 +134,6 @@ const blockUser = async (req, res) => {
     const { block } = req.query;
 
     if (JSON.parse(block)) {
-      /* send receiver Id as friend */
-      await Users.findByIdAndUpdate(
-        userId,
-        {
-          $push: {
-            blockedBy: user.id,
-          },
-        },
-        { new: true }
-      );
       /* send sender id as friend */
       await Users.findByIdAndUpdate(
         user.id,
@@ -157,16 +149,6 @@ const blockUser = async (req, res) => {
         message: "User blocked",
       });
     } else {
-      /* send receiver Id as friend */
-      await Users.findByIdAndUpdate(
-        userId,
-        {
-          $pull: {
-            blockedBy: user.id,
-          },
-        },
-        { new: true }
-      );
       /* send sender id as friend */
       await Users.findByIdAndUpdate(
         user.id,
