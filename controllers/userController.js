@@ -123,7 +123,6 @@ const blockUser = async (req, res) => {
   const user = req.user;
   const { userId } = req.params;
 
-  
   if (!userId) {
     return res.status(401).send({
       success: false,
@@ -132,7 +131,6 @@ const blockUser = async (req, res) => {
   }
   try {
     const { block } = req.query;
-
     if (JSON.parse(block)) {
       /* send sender id as friend */
       await Users.findByIdAndUpdate(
@@ -209,7 +207,7 @@ const getAllUsers = async (req, res) => {
       ];
     }
     const mineInfo = await Users.findById(req.user?.id);
-    
+
     /* if someone already add to my friends i don't show them  */
     filter.$and = [
       {
@@ -239,6 +237,30 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+/* get user by user id */
+const getUserByUserId = async (req, res) => {
+  const { id } = req.params;
+ 
+   
+  try {
+    const user = await Users.findById(id)
+      .select("-password -__v")
+      .populate("friends", "-password -__v");
+    if (user) {
+      res.status(202).send({
+        success: true,
+        message: "User by user id",
+        user,
+      });
+    }
+  } catch (error) {
+    res.status(404).send({
+      success: false,
+      message: "server error" + error,
+    });
+  }
+};
+
 /* imports controller */
 module.exports = {
   getAllUsers,
@@ -247,4 +269,5 @@ module.exports = {
   getUserById,
   logoutUser,
   blockUser,
+  getUserByUserId,
 };

@@ -194,7 +194,14 @@ const getAllChatsOfUser = async (req, res) => {
           select: "-password -__v -blockedBy -friends",
         },
       })
-      .populate("receiver", "-password -__v");
+      .populate({
+        path: "receiver",
+        select: "-password -__v",
+        populate: {
+          path: "friends",
+          select: "name avatar email",
+        },
+      });
 
     const { search } = req.query;
 
