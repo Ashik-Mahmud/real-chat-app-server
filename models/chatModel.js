@@ -7,6 +7,10 @@ const chatSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Users",
     },
+    receiver: {
+        type: Schema.Types.ObjectId,
+        ref: "Users",
+    },
     groupName: {
       type: String,
       trim: true,

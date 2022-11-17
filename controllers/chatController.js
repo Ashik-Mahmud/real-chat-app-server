@@ -7,7 +7,7 @@ const createChat = async (req, res) => {
   const user = req.user;
 
   const { receiverId } = req.body;
-  
+
   if (!receiverId) {
     return res.status(401).send({
       success: false,
@@ -51,6 +51,8 @@ const createChat = async (req, res) => {
     );
 
     const newChat = new Chat({
+      creator: user.id,
+      receiver: receiverId,
       users: [user.id, receiverId],
     });
 
@@ -167,28 +169,25 @@ const getAllChatsOfUser = async (req, res) => {
           path: "sender",
           select: "-password -__v",
         },
-      });
+      })
+      .populate("receiver", "-password -__v");
 
-    /* get only receiver users */
-    let chatsWithReceiver = chats.map((c) => {
-      const receiver = c.users.find((u) => u._id != user.id);
-      return receiver;
+      const {search} = req.query;
+
+      console.log(search);
+      
+
+    chats.map((chat) => {
+      const receiver = chat.users.filter((user) => user._id != req.user.id)[0];
+      chat.receiver = receiver;
     });
 
-    /* search receivers by name and email */
-    const { search } = req.query;
-    if (search) {
-      chatsWithReceiver = chatsWithReceiver.filter((c) => {
-        const regex = new RegExp(search, "gi");
-        return c.name.match(regex) || c.email.match(regex);
-      });
-    }
-
+    /* search by name */
+    const searchedResult = chats.filter(chat => chat.receiver?.name?.toLowerCase()?.includes(search.toLowerCase()))
     res.status(200).send({
       success: true,
       message: "Chats fetched successfully outside if",
-      chats,
-      receivers: chatsWithReceiver,
+      chats: searchedResult,
     });
   } catch (err) {
     res.status(500).send({
