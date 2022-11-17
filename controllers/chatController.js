@@ -8,27 +8,15 @@ const createChat = async (req, res) => {
 
   const { receiverId } = req.body;
 
+
   if (!receiverId) {
     return res.status(401).send({
       success: false,
       message: "Please fill up all the fields",
     });
   }
-  try {
-    const chat = await Chat.findOne({
-      users: {
-        $all: [user.id, receiverId],
-      },
-    });
-    if (chat) {
-      res.status(200).send({
-        success: true,
-        message: "Chat already exists",
-        chatId: chat._id,
-      });
-      return;
-    }
-
+  try {    
+    
     /* send receiver Id as friend */
     await Users.findByIdAndUpdate(
       receiverId,
@@ -56,7 +44,11 @@ const createChat = async (req, res) => {
       users: [user.id, receiverId],
     });
 
+    
+
     const savedChat = await newChat.save();
+  
+
     res.status(200).send({
       success: true,
       message: "Chat created successfully",
@@ -65,9 +57,8 @@ const createChat = async (req, res) => {
   } catch (err) {
     res.status(500).send({
       success: false,
-      message: "Server Error",
+      message: "Server Error"+err,
     });
-    console.log(err);
   }
 };
 
