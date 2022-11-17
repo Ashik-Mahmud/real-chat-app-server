@@ -75,6 +75,7 @@ const createChat = async (req, res) => {
 const createGroupChat = async (req, res) => {
   const user = req.user;
   const { name, members } = req.body;
+   
   if (!name || !members) {
     return res.status(401).send({
       success: false,
@@ -203,6 +204,8 @@ const getAllChatsOfUser = async (req, res) => {
         },
       });
 
+          
+
     const { search } = req.query;
 
     chats.map((chat) => {
@@ -214,10 +217,36 @@ const getAllChatsOfUser = async (req, res) => {
     const searchedResult = chats.filter((chat) =>
       chat.receiver?.name?.toLowerCase()?.includes(search?.toLowerCase())
     );
+
+    const groupChats= await Chat.find({
+        isGroup: true,
+        users: {
+          $in: [user.id],
+        },
+      })
+        .populate("users", "-password -__v")
+        .populate({
+          path: "lastMessage",
+          populate: {
+            path: "sender",
+            select: "-password -__v -blockedBy -friends",
+          },
+        })
+        .populate({
+          path: "receiver",
+          select: "-password -__v",
+          populate: {
+            path: "friends",
+            select: "name avatar email",
+          },
+        });
+
+
     res.status(200).send({
       success: true,
       message: "Chats fetched successfully outside if",
       chats: searchedResult,
+      groupChats,
     });
   } catch (err) {
     res.status(500).send({
