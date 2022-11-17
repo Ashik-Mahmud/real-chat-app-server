@@ -25,6 +25,11 @@ router.get("/logout/:id",  userController.logoutUser)
 // @access  secure
 router.get("/all", AuthGuard,  userController.getAllUsers);
 
+// @route   GET api/users/all-of-them
+// @desc    Get all users
+// @access  secure
+router.get("/all-of-them", AuthGuard,  userController.getAllOfThemUsers);
+
 // @route GET api/user/block/:id
 // @desc Block user
 // @access secure

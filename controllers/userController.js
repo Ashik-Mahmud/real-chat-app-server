@@ -237,11 +237,27 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+/* get all of them users */
+const getAllOfThemUsers = async (req, res) => {
+  const user = req.user;
+  try {
+    const users = await Users.find({
+        _id: {$ne: {_id: user?.id}}
+    }).select("-password -__v");    
+    res.json({
+      success: true,
+      message: "All of them users",
+      users,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 /* get user by user id */
 const getUserByUserId = async (req, res) => {
   const { id } = req.params;
- 
-   
+
   try {
     const user = await Users.findById(id)
       .select("-password -__v")
@@ -270,4 +286,5 @@ module.exports = {
   logoutUser,
   blockUser,
   getUserByUserId,
+  getAllOfThemUsers,
 };
