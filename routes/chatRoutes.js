@@ -20,7 +20,7 @@ router.post("/group/create", AuthGuard, chatController.createGroupChat)
 // @route GET/api/chat/group/join-by-link
 // @desc Joining Group By Link
 // @access secure 
-router.get("/group/join-by-code",AuthGuard, chatController.joinGroupByLink)
+router.post("/group/join-by-code",AuthGuard, chatController.joinGroupByLink)
 
 // @route POST /api/chat/message
 // @desc Send Message to a chat

@@ -103,8 +103,6 @@ const createGroupChat = async (req, res) => {
 const joinGroupByLink = async (req, res) => {
   const { joinId } = req.body;
   const user = req.user;
-
-  return console.log(joinId, user);
   
   if (!joinId) {
     return res.status(401).send({
