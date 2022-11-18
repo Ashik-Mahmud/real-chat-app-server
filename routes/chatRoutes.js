@@ -15,7 +15,12 @@ router.post("/create", AuthGuard, chatController.createChat)
 // @route POST /api/chat/group/create
 // @desc Create chat for group
 // @access secure
-router.post("/group/create", AuthGuard, chatController.createGroupChat)
+router.post("/group/create", AuthGuard, chatController.createGroupChat);
+
+// @route PATCH /api/chat/group/edit/:chatId
+// @desc Edit group chat
+// @access secure
+router.patch("/group/edit/:chatId", AuthGuard, chatController.editGroupChat);
 
 // @route GET/api/chat/group/join-by-link
 // @desc Joining Group By Link

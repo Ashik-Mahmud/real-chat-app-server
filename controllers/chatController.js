@@ -99,11 +99,56 @@ const createGroupChat = async (req, res) => {
   }
 };
 
+/* Edit Group name by chat id */
+const editGroupChat = async (req, res) => {
+  const user = req.user;
+  const { name } = req.body;
+  const { chatId } = req.params;
+
+  if (!name) {
+    return res.status(401).send({
+      success: false,
+      message: "Please fill up all the fields",
+    });
+  }
+
+  try {
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(401).send({
+        success: false,
+        message: "Chat not found",
+      });
+    }
+
+    if (chat.creator.toString() !== user.id) {
+      return res.status(401).send({
+        success: false,
+        message: "You are not authorized to edit this chat",
+      });
+    }
+
+    chat.groupName = name;
+    await chat.save();
+
+    res.status(200).send({
+      success: true,
+      message: "Group name updated successfully",
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+    console.log(err);
+  }
+};
+
 /* join group by Link */
 const joinGroupByLink = async (req, res) => {
   const { joinId } = req.body;
   const user = req.user;
-  
+
   if (!joinId) {
     return res.status(401).send({
       success: false,
@@ -434,6 +479,7 @@ const getMessages = async (req, res) => {
 module.exports = {
   createChat,
   createGroupChat,
+  editGroupChat,
   removeChat,
   sendMessage,
   getMessages,
