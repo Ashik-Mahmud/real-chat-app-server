@@ -144,6 +144,46 @@ const editGroupChat = async (req, res) => {
   }
 };
 
+/* remove member to the chat group */
+const removeMemberFromGroupChat = async (req, res) => {
+    const user = req.user;
+    const { chatId } = req.params;
+    const { memberId } = req.body;
+
+    try {
+        const chat = await Chat.findById(chatId);
+        if (!chat) {
+            return res.status(401).send({
+                success: false,
+                message: "Chat not found",
+            });
+        }
+
+        if (chat.creator.toString() !== user.id) {
+            return res.status(401).send({
+                success: false,
+                message: "You are not authorized to edit this chat",
+            });
+        }
+
+        const newMembers = chat.users.filter((member) => member.toString() !== memberId);
+        chat.users = newMembers;
+        await chat.save();
+
+        res.status(200).send({
+            success: true,
+            message: "Member removed successfully",
+        });
+    } catch (err) {
+        res.status(500).send({
+            success: false,
+            message: "Server Error",
+        });
+        console.log(err);
+    }
+};
+
+
 /* join group by Link */
 const joinGroupByLink = async (req, res) => {
   const { joinId } = req.body;
@@ -486,4 +526,5 @@ module.exports = {
   getAllChatsOfUser,
   deleteMessage,
   joinGroupByLink,
+  removeMemberFromGroupChat
 };

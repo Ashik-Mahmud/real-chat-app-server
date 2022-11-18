@@ -27,6 +27,11 @@ router.patch("/group/edit/:chatId", AuthGuard, chatController.editGroupChat);
 // @access secure 
 router.post("/group/join-by-code",AuthGuard, chatController.joinGroupByLink)
 
+// @route PATCH /api/chat/group/remove-member/:chatId
+// @desc Remove member from group chat
+// @access secure
+router.patch("/group/remove-member/:chatId", AuthGuard, chatController.removeMemberFromGroupChat);
+
 // @route POST /api/chat/message
 // @desc Send Message to a chat
 // @access secure
