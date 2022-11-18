@@ -146,43 +146,110 @@ const editGroupChat = async (req, res) => {
 
 /* remove member to the chat group */
 const removeMemberFromGroupChat = async (req, res) => {
-    const user = req.user;
-    const { chatId } = req.params;
-    const { memberId } = req.body;
+  const user = req.user;
+  const { chatId } = req.params;
+  const { memberId } = req.body;
 
-    try {
-        const chat = await Chat.findById(chatId);
-        if (!chat) {
-            return res.status(401).send({
-                success: false,
-                message: "Chat not found",
-            });
-        }
-
-        if (chat.creator.toString() !== user.id) {
-            return res.status(401).send({
-                success: false,
-                message: "You are not authorized to edit this chat",
-            });
-        }
-
-        const newMembers = chat.users.filter((member) => member.toString() !== memberId);
-        chat.users = newMembers;
-        await chat.save();
-
-        res.status(200).send({
-            success: true,
-            message: "Member removed successfully",
-        });
-    } catch (err) {
-        res.status(500).send({
-            success: false,
-            message: "Server Error",
-        });
-        console.log(err);
+  try {
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(401).send({
+        success: false,
+        message: "Chat not found",
+      });
     }
+
+    if (chat.creator.toString() !== user.id) {
+      return res.status(401).send({
+        success: false,
+        message: "You are not authorized to edit this chat",
+      });
+    }
+
+    const newMembers = chat.users.filter(
+      (member) => member.toString() !== memberId
+    );
+    chat.users = newMembers;
+    await chat.save();
+
+    res.status(200).send({
+      success: true,
+      message: "Member removed successfully",
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+    console.log(err);
+  }
 };
 
+/* leave group member */
+const leaveGroupChat = async (req, res) => {
+  const user = req.user;
+  const { chatId } = req.params;
+  try {
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(401).send({
+        success: false,
+        message: "Chat not found",
+      });
+    }
+    const newMembers = chat.users.filter(
+      (member) => member.toString() !== user.id
+    );
+    chat.users = newMembers;
+    await chat.save();
+
+    res.status(200).send({
+      success: true,
+      message: "You left the group successfully",
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+    console.log(err);
+  }
+};
+
+/* delete group chat */
+const deleteGroupChat = async (req, res) => {
+  const user = req.user;
+  const { chatId } = req.params;
+  try {
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(401).send({
+        success: false,
+        message: "Chat not found",
+      });
+    }
+    if (chat.creator.toString() !== user.id) {
+      return res.status(401).send({
+        success: false,
+        message: "You are not authorized to delete this chat",
+      });
+    }
+    await chat.remove();
+    await Message.deleteMany({
+      chat: chatId,
+    });
+    res.status(200).send({
+      success: true,
+      message: "Group chat deleted successfully",
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+    console.log(err);
+  }
+};
 
 /* join group by Link */
 const joinGroupByLink = async (req, res) => {
@@ -526,5 +593,7 @@ module.exports = {
   getAllChatsOfUser,
   deleteMessage,
   joinGroupByLink,
-  removeMemberFromGroupChat
+  removeMemberFromGroupChat,
+  leaveGroupChat,
+  deleteGroupChat,
 };
