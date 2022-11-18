@@ -99,6 +99,69 @@ const createGroupChat = async (req, res) => {
   }
 };
 
+/* add Members to the particular chat */
+const addMembersToGroupChat = async (req, res) => {
+  const user = req.user;
+  const { members } = req.body;
+  const { chatId } = req.params;
+
+  if (!members) {
+    return res.status(401).send({
+      success: false,
+      message: "Please fill up all the fields",
+    });
+  }
+
+  try {
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(401).send({
+        success: false,
+        message: "Chat not found",
+      });
+    }
+    if (chat.creator.toString() !== user.id) {
+      return res.status(401).send({
+        success: false,
+        message: "You are not authorized to add members to this chat",
+      });
+    }
+
+    /* check if already exists members */
+    const IsExistsMembers = chat.users.filter((member) =>
+        members.includes(member.toString())
+        ).length;
+    if (IsExistsMembers) {
+        return res.status(401).send({
+            success: false,
+            message: "Members already exists",
+        });
+    }
+    
+
+   
+
+    await Chat.findByIdAndUpdate(chatId, {
+      $push: {
+        users: {
+          $each: members,
+        },
+      },
+    });
+    res.status(200).send({
+      success: true,
+
+      message: "Members added successfully",
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      message: "Server Error",
+    });
+    console.log(err);
+  }
+};
+
 /* Edit Group name by chat id */
 const editGroupChat = async (req, res) => {
   const user = req.user;
@@ -596,4 +659,5 @@ module.exports = {
   removeMemberFromGroupChat,
   leaveGroupChat,
   deleteGroupChat,
+  addMembersToGroupChat,
 };

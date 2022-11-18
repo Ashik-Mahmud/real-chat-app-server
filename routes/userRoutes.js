@@ -30,6 +30,12 @@ router.get("/all", AuthGuard,  userController.getAllUsers);
 // @access  secure
 router.get("/all-of-them", AuthGuard,  userController.getAllOfThemUsers);
 
+// @route   GET api/users/existing-users/:chatId
+// @desc    Get all users which one is not in the chat
+// @access  secure
+router.get("/existing-users/:chatId", AuthGuard,  userController.getExistingUsers);
+
+
 // @route GET api/user/block/:id
 // @desc Block user
 // @access secure

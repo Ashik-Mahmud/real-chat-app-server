@@ -1,3 +1,4 @@
+const Chat = require("../models/chatModel");
 const Users = require("../models/userModel");
 const {
   registerUserService,
@@ -242,11 +243,34 @@ const getAllOfThemUsers = async (req, res) => {
   const user = req.user;
   try {
     const users = await Users.find({
-        _id: {$ne: {_id: user?.id}}
-    }).select("-password -__v");    
+      _id: { $ne: { _id: user?.id } },
+    }).select("-password -__v");
     res.json({
       success: true,
       message: "All of them users",
+      users,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+/* get all users which one is not in chat */
+const getExistingUsers = async (req, res) => {
+  const { chatId } = req.params;
+  try {
+    const chat = await Chat.findById(chatId).populate(
+      "users",
+      "-password -__v"
+    );
+    const users = await Users.find({
+      _id: {
+        $nin: chat?.users,
+      },
+    }).select("-password -__v");
+    res.json({
+      success: true,
+      message: "All Existing users",
       users,
     });
   } catch (err) {
@@ -287,4 +311,5 @@ module.exports = {
   blockUser,
   getUserByUserId,
   getAllOfThemUsers,
+  getExistingUsers,
 };
