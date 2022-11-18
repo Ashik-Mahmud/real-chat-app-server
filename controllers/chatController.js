@@ -8,15 +8,13 @@ const createChat = async (req, res) => {
 
   const { receiverId } = req.body;
 
-
   if (!receiverId) {
     return res.status(401).send({
       success: false,
       message: "Please fill up all the fields",
     });
   }
-  try {    
-    
+  try {
     /* send receiver Id as friend */
     await Users.findByIdAndUpdate(
       receiverId,
@@ -44,10 +42,7 @@ const createChat = async (req, res) => {
       users: [user.id, receiverId],
     });
 
-    
-
     const savedChat = await newChat.save();
-  
 
     res.status(200).send({
       success: true,
@@ -57,7 +52,7 @@ const createChat = async (req, res) => {
   } catch (err) {
     res.status(500).send({
       success: false,
-      message: "Server Error"+err,
+      message: "Server Error" + err,
     });
   }
 };
@@ -66,7 +61,7 @@ const createChat = async (req, res) => {
 const createGroupChat = async (req, res) => {
   const user = req.user;
   const { name, members } = req.body;
-   
+
   if (!name || !members) {
     return res.status(401).send({
       success: false,
@@ -98,6 +93,56 @@ const createGroupChat = async (req, res) => {
   } catch (err) {
     res.status(500).send({
       success: false,
+      message: "Server Error",
+    });
+    console.log(err);
+  }
+};
+
+/* join group by Link */
+const joinGroupByLink = async (req, res) => {
+  const { joinId } = req.body;
+  const user = req.user;
+
+  return console.log(joinId, user);
+  
+  if (!joinId) {
+    return res.status(401).send({
+      success: false,
+      message: "Please fill up all the fields",
+    });
+  }
+  try {
+    const chat = await Chat.findById(joinId);
+    if (!chat) {
+      return res.status(401).send({
+        success: false,
+        message: "Invalid Join Id",
+      });
+    }
+    if (chat.users.includes(user.id)) {
+      return res.status(401).send({
+        success: false,
+        message: "You are already a member of this group",
+      });
+    }
+    await Chat.findByIdAndUpdate(
+      joinId,
+      {
+        $push: {
+          users: user.id,
+        },
+      },
+      { new: true }
+    );
+    res.status(200).send({
+      success: true,
+      message: "You have joined the group successfully",
+    });
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+
       message: "Server Error",
     });
     console.log(err);
@@ -195,8 +240,6 @@ const getAllChatsOfUser = async (req, res) => {
         },
       });
 
-          
-
     const { search } = req.query;
 
     chats.map((chat) => {
@@ -209,29 +252,28 @@ const getAllChatsOfUser = async (req, res) => {
       chat.receiver?.name?.toLowerCase()?.includes(search?.toLowerCase())
     );
 
-    const groupChats= await Chat.find({
-        isGroup: true,
-        users: {
-          $in: [user.id],
+    const groupChats = await Chat.find({
+      isGroup: true,
+      users: {
+        $in: [user.id],
+      },
+    })
+      .populate("users", "-password -__v")
+      .populate({
+        path: "lastMessage",
+        populate: {
+          path: "sender",
+          select: "-password -__v -blockedBy -friends",
         },
       })
-        .populate("users", "-password -__v")
-        .populate({
-          path: "lastMessage",
-          populate: {
-            path: "sender",
-            select: "-password -__v -blockedBy -friends",
-          },
-        })
-        .populate({
-          path: "receiver",
-          select: "-password -__v",
-          populate: {
-            path: "friends",
-            select: "name avatar email",
-          },
-        });
-
+      .populate({
+        path: "receiver",
+        select: "-password -__v",
+        populate: {
+          path: "friends",
+          select: "name avatar email",
+        },
+      });
 
     res.status(200).send({
       success: true,
@@ -399,4 +441,5 @@ module.exports = {
   getMessages,
   getAllChatsOfUser,
   deleteMessage,
+  joinGroupByLink,
 };

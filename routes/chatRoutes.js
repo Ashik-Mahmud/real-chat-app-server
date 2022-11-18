@@ -17,6 +17,11 @@ router.post("/create", AuthGuard, chatController.createChat)
 // @access secure
 router.post("/group/create", AuthGuard, chatController.createGroupChat)
 
+// @route GET/api/chat/group/join-by-link
+// @desc Joining Group By Link
+// @access secure 
+router.get("/group/join-by-code",AuthGuard, chatController.joinGroupByLink)
+
 // @route POST /api/chat/message
 // @desc Send Message to a chat
 // @access secure
@@ -31,6 +36,8 @@ router.delete("/message/remove/:messageId", AuthGuard, chatController.deleteMess
 // @desc Get all chats of a user
 // @access secure
 router.get("/user", AuthGuard, chatController.getAllChatsOfUser)
+
+
 
 
 // @route GET /api/chat/remove/:id
