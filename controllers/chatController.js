@@ -535,7 +535,7 @@ const sendMessage = async (req, res) => {
       receiver: chat.users.find((u) => u != user.id),
       message: message,
     };
-    const saveMessage = await Message.create(newMessage);
+    const saveMessage = await (await Message.create(newMessage)).populate("chat");
     chat.lastMessage.sender = saveMessage?.sender;
 
     await chat.save();
