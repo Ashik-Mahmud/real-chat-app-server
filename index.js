@@ -43,48 +43,47 @@ const server = app.listen(port, () => {
   console.log(`Server started on port ${port}`.blue.bold);
 });
 
-
 /* socket.io connection */
 const socketServer = io(server, {
-    pingTimeout: 60000,
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
+  pingTimeout: 60000,
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
 });
 
-
 socketServer.on("connection", (socket) => {
-    console.log("New client connected");
+  console.log("New client connected");
 
+  /* setup room for chat */
+  socket.on("setup", (data) => {
+    socket.join(data._id);
+    console.log(data?._id);
+  });
 
-    /* setup room for chat */
-    socket.on("setup", (data) => {
-        socket.join(data._id);
-        console.log(data?._id);
+  /* create another room for joining chat */
+  socket.on("join_chat", (room) => {
+    socket.join(room);
+    console.log(`User Join to room - ` + room);
+  });
+
+  /* send new message for real time */
+  socket.on("new_message", (newMessage) => {
+    const chat = newMessage?.chat;
+    if (!chat?.users) return console.log(`chat is not available`);
+    chat.users.forEach((user) => {
+      if (user == newMessage?.sender) return;
+      socket.in(user).emit("message_received", newMessage);
     });
+  });
 
-    /* create another room for joining chat */
-    socket.on("join_chat", (room)=>{
-        socket.join(room);
-        console.log(`User Join to room - `+ room)
-    })
+  /* adding typing indicator */
+  socket.on("typing", (room) => {    
+    if(!room)return console.log('not found room');
+    socket.in(room).emit("isTyping", room);
+  });
 
-    /* send new message for real time */
-    socket.on("new_message", (newMessage)=>{
-        const chat = newMessage?.chat;
-        
-        if(!chat?.users) return console.log(`chat is not available`);
-        chat.users.forEach(user => {         
-            if(user == newMessage?.sender) return;
-            console.log(user);
-            socket.in(user).emit("message_received", newMessage);
-        });     
-    })
-
-
-    socket.on("disconnect", () => {
-        console.log("Client disconnected");
-    });
-    }
-);
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+});

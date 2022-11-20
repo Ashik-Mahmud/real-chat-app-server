@@ -542,9 +542,9 @@ const sendMessage = async (req, res) => {
           select: "-password -__v",
         },
         populate: {
-          path: "receiver",
-          select: "-password -__v",
-        },
+            path: "receiver",
+            select: "-password -__v",
+          },
       })
     ).populate({
       path: "sender",
