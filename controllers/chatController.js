@@ -432,7 +432,7 @@ const getAllChatsOfUser = async (req, res) => {
       users: {
         $in: [user.id],
       },
-    })
+    }).sort({ updatedAt: -1 })
       .populate("users", "-password -__v")
       .populate({
         path: "lastMessage",
@@ -467,7 +467,7 @@ const getAllChatsOfUser = async (req, res) => {
       users: {
         $in: [user.id],
       },
-    })
+    }).sort({ updatedAt: -1 })
       .populate("users", "-password -__v")
       .populate({
         path: "lastMessage",
