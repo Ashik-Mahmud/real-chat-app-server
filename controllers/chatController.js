@@ -129,17 +129,14 @@ const addMembersToGroupChat = async (req, res) => {
 
     /* check if already exists members */
     const IsExistsMembers = chat.users.filter((member) =>
-        members.includes(member.toString())
-        ).length;
+      members.includes(member.toString())
+    ).length;
     if (IsExistsMembers) {
-        return res.status(401).send({
-            success: false,
-            message: "Members already exists",
-        });
+      return res.status(401).send({
+        success: false,
+        message: "Members already exists",
+      });
     }
-    
-
-   
 
     await Chat.findByIdAndUpdate(chatId, {
       $push: {
@@ -535,7 +532,25 @@ const sendMessage = async (req, res) => {
       receiver: chat.users.find((u) => u != user.id),
       message: message,
     };
-    const saveMessage = await (await Message.create(newMessage)).populate("chat");
+    const saveMessage = await (
+      await (
+        await Message.create(newMessage)
+      ).populate({
+        path: "chat",
+        populate: {
+          path: "users",
+          select: "-password -__v",
+        },
+        populate: {
+          path: "receiver",
+          select: "-password -__v",
+        },
+      })
+    ).populate({
+      path: "sender",
+      select: "-password -__v -blockedBy -friends",
+    });
+
     chat.lastMessage.sender = saveMessage?.sender;
 
     await chat.save();
