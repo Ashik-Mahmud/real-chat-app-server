@@ -27,11 +27,11 @@ router.post("/send-reset-password-link", userController.sendResetPasswordLink)
 
 router.get("/reset-password/:token", userController.resetPasswordWithVerify)
 
-// @route PATCH api/user/change-password
+// @route GET api/user/change-password
 // @desc Change password
 // @access public
 
-router.patch("/change-password", userController.changePassword)
+router.post("/change-password", userController.changePassword)
 
 
 // @route GET api/user/logout

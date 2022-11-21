@@ -23,7 +23,10 @@ const registerUser = async (req, res) => {
     if (isExist) {
       return res.status(400).json({ message: "User already exist" });
     }
-    const user = await registerUserService(data);
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(data.password, salt);
+
+    const user = await registerUserService({...data, password: passwordHash});
     const token = await GenerateToken(user);
 
     if (user) {
@@ -55,7 +58,7 @@ const loginUser = async (req, res) => {
       });
     }
 
-    const isMatch = await bcrypt.compare(data?.password, isHasUser?.password);
+    const isMatch = await bcrypt.compare(data?.password, isHasUser?.password);      
     if (!isMatch) {
       return res.status(404).send({
         success: false,
@@ -250,7 +253,6 @@ const resetPasswordWithVerify = async (req, res) => {
 /* change Password */
 const changePassword = async (req, res) => {
   const { user_id, password } = req.body;
-
   if (!user_id || !password) {
     return res.status(404).send({
       success: false,

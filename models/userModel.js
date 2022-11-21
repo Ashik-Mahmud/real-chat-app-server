@@ -58,7 +58,7 @@ const userSchema = new Schema(
 );
 
 /* hashing password */
-userSchema.pre("save", async function (next) {
+/* userSchema.pre("save", async function (next) {
   try {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(this.password, salt);
@@ -67,7 +67,7 @@ userSchema.pre("save", async function (next) {
   } catch (err) {
     next(err);
   }
-});
+}); */
 
 /* match password */
 userSchema.methods.comparePassword = async (password, hasPassword) => {
