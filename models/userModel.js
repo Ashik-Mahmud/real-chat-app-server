@@ -74,6 +74,14 @@ userSchema.methods.comparePassword = async (password, hasPassword) => {
   const isMatch = await bcrypt.compare(password, hasPassword);
   return isMatch;
 };
+
+/* make password hash */
+userSchema.methods.hashPassword = async(password) =>{
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+    return passwordHash;
+}
+
 const Users = mongoose.model("Users", userSchema);
 
 module.exports = Users;

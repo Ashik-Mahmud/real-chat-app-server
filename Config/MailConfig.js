@@ -19,7 +19,7 @@ module.exports.sendMailWithGmail = async (to, name, messageReason, token) => {
   if (!to) {
     return false;
   }
-  const url = process.env.CLIENT_URL + "/reset-password/" + token;
+  const url = process.env.SERVER_URL + "/api/user/reset-password/" + token;
   if (messageReason === "welcome") {
     subject = "Welcome to Chat App";
     html = `${welcomeMessageTemplate(name)}`;

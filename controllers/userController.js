@@ -1,4 +1,5 @@
 const { sendMailWithGmail } = require("../Config/MailConfig");
+const bcrypt = require("bcrypt");
 const Chat = require("../models/chatModel");
 const Users = require("../models/userModel");
 const {
@@ -24,10 +25,9 @@ const registerUser = async (req, res) => {
     }
     const user = await registerUserService(data);
     const token = await GenerateToken(user);
-    
-    
+
     if (user) {
-      sendMailWithGmail(data.email, data.name , "welcome", null);
+      sendMailWithGmail(data.email, data.name, "welcome", null);
       return res.status(200).json({
         message: "User registered successfully",
         token: token,
@@ -175,55 +175,115 @@ const blockUser = async (req, res) => {
   }
 };
 
-
 /* Send Reset Password Link */
 const sendResetPasswordLink = async (req, res) => {
-    const { email } = req.body;    
-    if (!email) {
-        return res.status(401).send({
-            success: false,
-            message: "Please fill up all the fields",
-        });
+  const { email } = req.body;
+  if (!email) {
+    return res.status(401).send({
+      success: false,
+      message: "Please fill up all the fields",
+    });
+  }
+  try {
+    const isHasUser = await Users.findOne({ email });
+    if (!isHasUser) {
+      return res.status(403).send({
+        success: false,
+        message: `${email} is not register yet.`,
+      });
     }
-    try {
-        const isHasUser = await Users.findOne({ email
-        });
-        if (!isHasUser) {
-            return res.status(403).send({
-                success: false,
-                message: `${email} is not register yet.`,
-            });
-        }
-        const token = await GenerateToken(isHasUser);
-        /* expiration time for 30 mins*/
-        const expirationTime = new Date().getTime() + 30 * 60 * 1000;
-        await Users.findByIdAndUpdate(
-            isHasUser?._id,
-            {
-                $set: {
-                    resetPasswordToken: token,
-                    resetPasswordExpires: expirationTime,
-                },
-            },
-            { new: true }
-        );
-        sendMailWithGmail(email, isHasUser.name, "forgotPassword", token);
-        res.status(200).send({
-            success: true,
-            message: "Reset Password Link Sent",
-        });
-    } catch (error) {
-        res.status(404).send({
-            success: false,
-            message: `Server Error` + error?.message,
-        });
-    }
+    const token = await GenerateToken(isHasUser);
+    /* expiration time for 30 mins*/
+    const expirationTime = new Date().getTime() + 30 * 60 * 1000;
+    await Users.findByIdAndUpdate(
+      isHasUser?._id,
+      {
+        $set: {
+          resetPasswordToken: token,
+          resetPasswordExpires: expirationTime,
+        },
+      },
+      { new: true }
+    );
+    sendMailWithGmail(email, isHasUser.name, "forgotPassword", token);
+    res.status(200).send({
+      success: true,
+      message: "Reset Password Link Sent",
+    });
+  } catch (error) {
+    res.status(404).send({
+      success: false,
+      message: `Server Error` + error?.message,
+    });
+  }
 };
 
+/* reset password with verify */
+const resetPasswordWithVerify = async (req, res) => {
+  const { token } = req.params;
+  if (!token) {
+    return res.status(404).json({
+      success: false,
+      message: "Token is invalid",
+    });
+  }
 
+  try {
+    const user = await Users.findOne({ resetPasswordToken: token });
+    const nowTime = new Date().getTime();
+    const expireTime = user?.resetPasswordExpires?.getTime();
 
+    if (nowTime > expireTime) {
+      return res.status(403).send({
+        success: false,
+        message: "Link is expire send again.",
+      });
+    }
+    user.resetPasswordExpires = null;
+    user.resetPasswordToken = null;
+    await user.save();
+    res.redirect(`${process.env.CLIENT_URL}/change-password/${user?._id}`);
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: "Already used this link sorry",
+    });
+  }
+};
 
+/* change Password */
+const changePassword = async (req, res) => {
+  const { user_id, password } = req.body;
 
+  if (!user_id || !password) {
+    return res.status(404).send({
+      success: false,
+      message: "all fields are required",
+    });
+  }
+
+  try {
+    const user = await Users.findById(user_id);
+    if (!user)
+      return res.status(404).send({
+        success: false,
+        message: "User not found.",
+      });
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+    user.password = passwordHash;
+    await user.save();
+    res.status(202).send({
+      success: true,
+      message: "Password changed successfully done.",
+    });
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: "Internal server error" + error,
+    });
+  }
+};
 
 /* Get user by ID */
 const getUserById = async (req, res) => {
@@ -366,5 +426,7 @@ module.exports = {
   getUserByUserId,
   getAllOfThemUsers,
   getExistingUsers,
-  sendResetPasswordLink
+  sendResetPasswordLink,
+  resetPasswordWithVerify,
+  changePassword,
 };
