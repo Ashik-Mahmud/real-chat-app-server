@@ -13,19 +13,19 @@ const oauth2Client = new OAuth2(
 );
 oauth2Client.setCredentials({ refresh_token: process.env.EMAIL_REFRESH_TOKEN });
 
-module.exports.sendMailWithGmail = async (to, name, messageReason) => {
+module.exports.sendMailWithGmail = async (to, name, messageReason, token) => {
   let html = "";
   let subject = "";
   if (!to) {
     return false;
   }
-
+  const url = process.env.BASE_URL + "/reset-password/" + token;
   if (messageReason === "welcome") {
     subject = "Welcome to Chat App";
     html = `${welcomeMessageTemplate(name)}`;
   } else if (messageReason === "forgotPassword") {
     subject = "Verify to Reset Password";
-    html = `${ResetPasswordEmailTemplate(process.env.CLIENT_URL+'/reset-password/'+name)}`;
+    html = `${ResetPasswordEmailTemplate(url)}`;
   }
 
   try {

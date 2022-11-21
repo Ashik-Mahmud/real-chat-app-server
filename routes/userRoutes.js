@@ -15,6 +15,12 @@ router.post("/register", userController.registerUser);
 // @access Public
 router.post("/login", userController.loginUser)
 
+
+// @route POST api/user/send-reset-password-link
+// @desc Send reset password link
+// @access Public
+router.post("/send-reset-password-link", userController.sendResetPasswordLink)
+
 // @route GET api/user/logout
 // @desc Logout user
 // @access Public

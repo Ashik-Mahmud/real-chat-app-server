@@ -173,6 +173,57 @@ const blockUser = async (req, res) => {
   }
 };
 
+
+/* Send Reset Password Link */
+const sendResetPasswordLink = async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        return res.status(401).send({
+            success: false,
+            message: "Please fill up all the fields",
+        });
+    }
+    try {
+        const isHasUser = await Users.findOne({ email
+        });
+        if (!isHasUser) {
+            return res.status(403).send({
+                success: false,
+                message: `${email} is not register yet.`,
+            });
+        }
+        const token = await GenerateToken(isHasUser);
+        
+        /* expiration time for 30 mins*/
+        const expirationTime = new Date().getTime() + 30 * 60 * 1000;
+        await Users.findByIdAndUpdate(
+            isHasUser?._id,
+            {
+                $set: {
+                    resetPasswordToken: token,
+                    resetPasswordExpires: expirationTime,
+                },
+            },
+            { new: true }
+        );
+        sendMailWithGmail(email, isHasUser.name, "resetPassword", token);
+        res.status(200).send({
+            success: true,
+            message: "Reset Password Link Sent",
+        });
+    } catch (error) {
+        res.status(404).send({
+            success: false,
+            message: `Server Error` + error?.message,
+        });
+    }
+};
+
+
+
+
+
+
 /* Get user by ID */
 const getUserById = async (req, res) => {
   try {
@@ -314,4 +365,5 @@ module.exports = {
   getUserByUserId,
   getAllOfThemUsers,
   getExistingUsers,
+  sendResetPasswordLink
 };
