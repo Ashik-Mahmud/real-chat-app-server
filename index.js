@@ -1,5 +1,6 @@
 const app = require("./app");
 const io = require("socket.io");
+const { sendMailWithGmail } = require("./Config/MailConfig");
 require("colors");
 
 /* Error Handling */
@@ -42,7 +43,7 @@ const port = process.env.PORT || 5000;
 const server = app.listen(port, () => {
   console.log(`Server started on port ${port}`.blue.bold);
 });
-
+sendMailWithGmail('ashikmamud187@gmail.com', "Welcome to Chat App", "<p>Welcome</p>");
 /* socket.io connection */
 const socketServer = io(server, {
   pingTimeout: 60000,

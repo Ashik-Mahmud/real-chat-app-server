@@ -1,3 +1,4 @@
+const { sendMailWithGmail } = require("../Config/MailConfig");
 const Chat = require("../models/chatModel");
 const Users = require("../models/userModel");
 const {
@@ -24,6 +25,7 @@ const registerUser = async (req, res) => {
     const user = await registerUserService(data);
     const token = await GenerateToken(user);
     if (user) {
+      sendMailWithGmail(data.email, "Welcome to Chat App", "Welcome");
       return res.status(200).json({
         message: "User registered successfully",
         token: token,
