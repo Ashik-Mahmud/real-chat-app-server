@@ -55,12 +55,8 @@ const loginUser = async (req, res) => {
       });
     }
 
-    const isMatchPassword = await isHasUser.comparePassword(
-      data?.password,
-      isHasUser?.password
-    );
-
-    if (!isMatchPassword) {
+    const isMatch = await bcrypt.compare(data?.password, isHasUser?.password);
+    if (!isMatch) {
       return res.status(404).send({
         success: false,
         message: "Incorrect credentials",
