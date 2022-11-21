@@ -24,8 +24,10 @@ const registerUser = async (req, res) => {
     }
     const user = await registerUserService(data);
     const token = await GenerateToken(user);
+    
+    
     if (user) {
-      sendMailWithGmail(data.email, data.name , "welcome");
+      sendMailWithGmail(data.email, data.name , "welcome", null);
       return res.status(200).json({
         message: "User registered successfully",
         token: token,
@@ -176,7 +178,7 @@ const blockUser = async (req, res) => {
 
 /* Send Reset Password Link */
 const sendResetPasswordLink = async (req, res) => {
-    const { email } = req.body;
+    const { email } = req.body;    
     if (!email) {
         return res.status(401).send({
             success: false,
@@ -193,7 +195,6 @@ const sendResetPasswordLink = async (req, res) => {
             });
         }
         const token = await GenerateToken(isHasUser);
-        
         /* expiration time for 30 mins*/
         const expirationTime = new Date().getTime() + 30 * 60 * 1000;
         await Users.findByIdAndUpdate(
@@ -206,7 +207,7 @@ const sendResetPasswordLink = async (req, res) => {
             },
             { new: true }
         );
-        sendMailWithGmail(email, isHasUser.name, "resetPassword", token);
+        sendMailWithGmail(email, isHasUser.name, "forgotPassword", token);
         res.status(200).send({
             success: true,
             message: "Reset Password Link Sent",
