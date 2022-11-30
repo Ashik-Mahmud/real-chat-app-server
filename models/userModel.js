@@ -44,12 +44,16 @@ const userSchema = new Schema(
       default: false,
     },
     resetPasswordToken: {
-        type: String,
-        default: null,
+      type: String,
+      default: null,
     },
     resetPasswordExpires: {
-        type: Date,
-        default: null,
+      type: Date,
+      default: null,
+    },
+    public_id: {
+      type: String,
+      trim: true,
     },
   },
   {
@@ -76,11 +80,11 @@ userSchema.methods.comparePassword = async (password, hasPassword) => {
 };
 
 /* make password hash */
-userSchema.methods.hashPassword = async(password) =>{
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-    return passwordHash;
-}
+userSchema.methods.hashPassword = async (password) => {
+  const salt = await bcrypt.genSalt(10);
+  const passwordHash = await bcrypt.hash(password, salt);
+  return passwordHash;
+};
 
 const Users = mongoose.model("Users", userSchema);
 

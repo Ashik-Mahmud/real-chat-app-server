@@ -3,6 +3,7 @@ const AuthGuard = require("./../middlewares/AuthGuard")
 
 // import controllers
 const userController = require("../controllers/userController");
+const upload = require("../Utils/Multer");
 
 
 //@route POST api/users/register
@@ -15,6 +16,10 @@ router.post("/register", userController.registerUser);
 // @access Public
 router.post("/login", userController.loginUser)
 
+// @route PUT api/user/change-photo
+// @desc Update profile Image
+// @access secured
+router.post("/change-photo", AuthGuard,  userController.changeProfileImage)
 
 // @route POST api/user/send-reset-password-link
 // @desc Send reset password link
@@ -65,10 +70,7 @@ router.get("/block/:userId", AuthGuard, userController.blockUser);
 // @access secure
 router.get("/me", AuthGuard, userController.getUserById)
 
-// @route PUT api/user/change-photo
-// @desc Update profile Image
-// @access secured
-router.put("/change-photo", AuthGuard, userController.changeProfileImage)
+
 
 // @route GET api/user/:id
 // @desc Get Single User By ID

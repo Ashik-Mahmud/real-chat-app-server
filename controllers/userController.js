@@ -417,16 +417,32 @@ const getUserByUserId = async (req, res) => {
 /* change Profile Image */
 const changeProfileImage = async (req, res) => {
   const userId = req.user.id;
-
+  const { image } = req.body;
   try {
+    if (!image) {
+      return res.status(404).send({
+        success: false,
+        message: "Please select Image",
+      });
+    }
+    const user = await Users.findById(userId);
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: "You have no permission to change image.",
+      });
+    }
+    const upload = await uploadImage(image, req.user.email);
+    user.avatar = upload?.secure_url;
+    user.public_id = upload?.public_id;
+    await user.save();
 
-    return console.log(userId, req.body);
-    
-    const uploadImage  = await uploadImage()
-
-
-
-  } catch (err) {
+    res.status(202).send({
+      success: true,
+      message: "Update profile photo done",
+      user,
+    });
+  } catch (error) {
     res.status(404).send({
       success: false,
       message: "server error" + error,
