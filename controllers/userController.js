@@ -9,7 +9,7 @@ const {
   findUserByIdService,
 } = require("../services/userServices");
 const GenerateToken = require("../Utils/GenerateToken");
-const { uploadImage } = require("../Utils/ImageManage");
+const { uploadImage, deleteImage } = require("../Utils/ImageManage");
 
 /* register users */
 const registerUser = async (req, res) => {
@@ -431,6 +431,9 @@ const changeProfileImage = async (req, res) => {
         success: false,
         message: "You have no permission to change image.",
       });
+    }
+    if (user?.public_id) {
+      await deleteImage(user?.public_id, req.user.email);
     }
     const upload = await uploadImage(image, req.user.email);
     user.avatar = upload?.secure_url;
