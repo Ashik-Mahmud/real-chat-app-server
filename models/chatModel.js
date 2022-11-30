@@ -41,7 +41,7 @@ const chatSchema = new Schema(
         trim: true,
        }
     },
-    public_url:{
+    public_id:{
         type: String,
         trim: true
     }
