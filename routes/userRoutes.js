@@ -65,10 +65,17 @@ router.get("/block/:userId", AuthGuard, userController.blockUser);
 // @access secure
 router.get("/me", AuthGuard, userController.getUserById)
 
+// @route PUT api/user/change-photo
+// @desc Update profile Image
+// @access secured
+router.put("/change-photo", AuthGuard, userController.changeProfileImage)
+
 // @route GET api/user/:id
 // @desc Get Single User By ID
 // @access secure
 router.get("/me/:id", AuthGuard, userController.getUserByUserId)
+
+
 
 
 

@@ -9,6 +9,7 @@ const {
   findUserByIdService,
 } = require("../services/userServices");
 const GenerateToken = require("../Utils/GenerateToken");
+const { uploadImage } = require("../Utils/ImageManage");
 
 /* register users */
 const registerUser = async (req, res) => {
@@ -26,7 +27,7 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(data.password, salt);
 
-    const user = await registerUserService({...data, password: passwordHash});
+    const user = await registerUserService({ ...data, password: passwordHash });
     const token = await GenerateToken(user);
 
     if (user) {
@@ -58,7 +59,7 @@ const loginUser = async (req, res) => {
       });
     }
 
-    const isMatch = await bcrypt.compare(data?.password, isHasUser?.password);      
+    const isMatch = await bcrypt.compare(data?.password, isHasUser?.password);
     if (!isMatch) {
       return res.status(404).send({
         success: false,
@@ -413,6 +414,26 @@ const getUserByUserId = async (req, res) => {
   }
 };
 
+/* change Profile Image */
+const changeProfileImage = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+
+    return console.log(userId, req.body);
+    
+    const uploadImage  = await uploadImage()
+
+
+
+  } catch (err) {
+    res.status(404).send({
+      success: false,
+      message: "server error" + error,
+    });
+  }
+};
+
 /* imports controller */
 module.exports = {
   getAllUsers,
@@ -427,4 +448,5 @@ module.exports = {
   sendResetPasswordLink,
   resetPasswordWithVerify,
   changePassword,
+  changeProfileImage,
 };
