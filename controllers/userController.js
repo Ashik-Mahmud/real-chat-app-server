@@ -418,6 +418,8 @@ const getUserByUserId = async (req, res) => {
 const changeProfileImage = async (req, res) => {
   const userId = req.user.id;
   const { image } = req.body;
+  const { where, id } = req.query;
+
   try {
     if (!image) {
       return res.status(404).send({
@@ -425,25 +427,44 @@ const changeProfileImage = async (req, res) => {
         message: "Please select Image",
       });
     }
-    const user = await Users.findById(userId);
-    if (!user) {
-      return res.status(404).send({
-        success: false,
-        message: "You have no permission to change image.",
-      });
+
+    if (where === "profile") {
+      const user = await Users.findById(userId);
+      if (!user) {
+        return res.status(404).send({
+          success: false,
+          message: "You have no permission to change image.",
+        });
+      }
+      if (user?.public_id) {
+        await deleteImage(user?.public_id, req.user.email);
+      }
+      const upload = await uploadImage(image, req.user.email);
+      user.avatar = upload?.secure_url;
+      user.public_id = upload?.public_id;
+      await user.save();
     }
-    if (user?.public_id) {
-      await deleteImage(user?.public_id, req.user.email);
+
+    if (where === "group") {
+      const chat = await Chat.findById(id);
+      if (!chat) {
+        return res.status(404).send({
+          success: false,
+          message: "You have no permission to change image.",
+        });
+      }
+      if (chat?.public_id) {
+        await deleteImage(chat?.public_id, "group-" + id);
+      }
+      const upload = await uploadImage(image, "group-" + id);
+      chat.groupImage = upload?.secure_url;
+      chat.public_id = upload?.public_id;
+      await chat.save();
     }
-    const upload = await uploadImage(image, req.user.email);
-    user.avatar = upload?.secure_url;
-    user.public_id = upload?.public_id;
-    await user.save();
 
     res.status(202).send({
       success: true,
-      message: "Update profile photo done",
-      user,
+      message: `Update ${where} successfully done`,
     });
   } catch (error) {
     res.status(404).send({

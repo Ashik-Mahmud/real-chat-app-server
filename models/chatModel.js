@@ -41,6 +41,10 @@ const chatSchema = new Schema(
         trim: true,
        }
     },
+    public_url:{
+        type: String,
+        trim: true
+    }
   },
 
   {
